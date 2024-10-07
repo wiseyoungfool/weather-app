@@ -6,6 +6,7 @@ const searchButton = document.getElementById("get-weather");
 // Weather
 const weather = document.getElementById("weather");
 const loc = document.getElementById("location");
+const time = document.getElementById("time");
 const temp = document.getElementById("temp");
 const icon = document.getElementById("main-weather-icon");
 const forecast = document.getElementById("forecast");
@@ -16,6 +17,9 @@ const feelsLike = document.getElementById("feels-like");
 const wind = document.getElementById("wind");
 const humidity = document.getElementById("humidity");
 const precipitationProbability = document.getElementById("prec-prob");
+const tempHigh = document.getElementById("high-temp");
+const tempLow = document.getElementById("low-temp");
+
 const useCelciusCheck = document.getElementById("celcius-button");
 const useCelciusButton = document.getElementById("metric-system");
 
@@ -27,7 +31,7 @@ searchForm.addEventListener("submit", searchWeather);
 //useCelciusCheck.addEventListener("click", toggleCelcius);
 useCelciusButton.addEventListener("click", toggleCelcius);
 
-//getWeather("Philadelphia");
+getWeather("Philadelphia");
 
 async function getWeather(location) {
     const response = await fetch(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location}?key=4EJ7R4VXQT4N3V8P4Y2D2D5QA`, {mode: 'cors'});
@@ -42,17 +46,29 @@ async function getWeather(location) {
             loc.textContent = response.resolvedAddress;
             weather.textContent = response.currentConditions.conditions;
 
+            //const milTime = response.currentConditions.datetime;
+            //time.textContent = milTime;
+
             if (useCelcius===false) temp.textContent = response.currentConditions.temp + "°F";
             else temp.textContent = ((response.currentConditions.feelslike - 32) * (5/9)).toFixed(1) + "°C";
 
             description.textContent = response.description;
 
-            if (useCelcius===false) feelsLike.textContent = "Feels Like: " + response.currentConditions.feelslike + "°F";
-            else feelsLike.textContent = "Feels Like: " + ((response.currentConditions.feelslike - 32) * (5/9)).toFixed(1) + "°C";
+            if (useCelcius===false) feelsLike.textContent = response.currentConditions.feelslike + "°F";
+            else feelsLike.textContent = ((response.currentConditions.feelslike - 32) * (5/9)).toFixed(1) + "°C";
 
-            humidity.textContent = "Humidity: " + response.currentConditions.humidity + "%";
-            if (useCelcius===false) wind.textContent = "Wind: " + response.currentConditions.windspeed + "mph";
-            else wind.textContent = "Wind: " + (response.currentConditions.windspeed*1.609344).toFixed(1) + "kph";
+            humidity.textContent = response.currentConditions.humidity + "%";
+
+            if (useCelcius===false) wind.textContent = response.currentConditions.windspeed + "mph";
+            else wind.textContent = (response.currentConditions.windspeed*1.609344).toFixed(1) + "kph";
+
+            if (useCelcius===false) {
+                tempHigh.textContent = response.days[0].tempmax + "°F";
+                tempLow.textContent = response.days[0].tempmin + "°F";
+            } else {
+                tempHigh.textContent = ((response.days[0].tempmax - 32) * (5/9)).toFixed(1) + "°C";
+                tempLow.textContent = ((response.days[0].tempmin - 32) * (5/9)).toFixed(1) + "°C";
+            }
             setWeatherIcon(response.currentConditions.icon);
             populateForecast(response)
         });
@@ -61,8 +77,16 @@ async function getWeather(location) {
 }
 
 function populateForecast(response) {
-    forecast.innerHTML="";
-    for (let i=0; i<14; i++) {
+    forecast.innerHTML=`<div class="day label">
+        <strong>Date</strong>
+        <strong>Icon</strong>
+        <strong>Condition</strong>
+        <strong>Temp</strong>
+        <strong>High / Low</strong>
+        <strong>Precip.</strong>
+        </div>
+    `;
+    for (let i=1; i<=14; i++) {
         const dayData = response.days[i];
 
         const day = document.createElement("div");
@@ -86,8 +110,8 @@ function populateForecast(response) {
         day.appendChild(temp);
 
         const highLow = document.createElement("div");
-        if (useCelcius===false) highLow.textContent = dayData.tempmax + "°F/" + dayData.tempmin + "°F";
-        else highLow.textContent = ((dayData.tempmax - 32) * (5/9)).toFixed(1) + "°C/" + ((dayData.tempmin - 32) * (5/9)).toFixed(1) + "°C";
+        if (useCelcius===false) highLow.textContent = dayData.tempmax + "°F / " + dayData.tempmin + "°F";
+        else highLow.textContent = ((dayData.tempmax - 32) * (5/9)).toFixed(1) + "°C / " + ((dayData.tempmin - 32) * (5/9)).toFixed(1) + "°C";
         day.appendChild(highLow);
 
         const prec = document.createElement("div");

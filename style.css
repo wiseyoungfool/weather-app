@@ -79,6 +79,11 @@ input {
 .title {
     padding: 20px;
 }
+
+.label {
+    color: white;
+    /* border-bottom: 1px solid white; */
+}
 #main-weather-icon img {
     height: 250px;
 }
@@ -109,4 +114,11 @@ input {
 #description {
     border-bottom: 1px solid white;
     padding: 20px;
+}
+
+#details {
+    display: grid;
+    grid-template-columns: 1fr 50px;
+    gap: 10px;
+    text-align: end;
 }
