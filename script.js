@@ -8,6 +8,7 @@ const weather = document.getElementById("weather");
 const loc = document.getElementById("location");
 const temp = document.getElementById("temp");
 const icon = document.getElementById("main-weather-icon");
+const forecast = document.getElementById("forecast");
 
 // Details
 const description = document.getElementById("description");
@@ -37,9 +38,53 @@ async function getWeather(location) {
             wind.textContent = "Wind: " + response.currentConditions.windspeed + "mph";
 
             setWeatherIcon(response.currentConditions.icon);
+            populateForecast(response)
         });
     }
 
+}
+
+function populateForecast(response) {
+    forecast.innerHTML="";
+    for (let i=0; i<14; i++) {
+        const dayData = response.days[i];
+
+        const day = document.createElement("div");
+        day.classList.add("day");
+
+        const date = document.createElement("div");
+        date.textContent = dayData.datetime;
+        day.appendChild(date);
+
+        const icon = document.createElement("img");
+        setForecastIcon(dayData.icon, icon);
+        day.appendChild(icon);
+
+        const condition = document.createElement("div");
+        condition.textContent = dayData.conditions;
+        day.appendChild(condition);
+
+        const temp = document.createElement("div");
+        temp.textContent = dayData.temp + '°';
+        day.appendChild(temp);
+
+        const highLow = document.createElement("div");
+        highLow.textContent = dayData.tempmax + "°/" + dayData.tempmin + "°";
+        day.appendChild(highLow);
+
+        const prec = document.createElement("div");
+        prec.textContent = dayData.precipprob + "%";
+        day.appendChild(prec);
+
+        forecast.appendChild(day);
+    }
+}
+
+function setForecastIcon(iconName, element) {
+    const iconPath = `icons/${iconName}.svg`;
+
+    element.src = iconPath;
+    element.alt = iconName;
 }
 
 function setWeatherIcon(iconName) {
